@@ -189,7 +189,7 @@
 (define UNPARSEBNF (lambda (exp)
                                 (if (and (equal? (car exp) 'FNC) (number? (cadr exp)) (list? (caddr exp)))
                                     (list 'FNC (cadr exp) (UNPARSEBNF-AND (caddr exp)))
-                                (eopl:error 'UNPARSEBNF "no es una FNC valida"))))
+                                (eopl:error 'exp "no es una FNC valida"))))
 ;; Casos de prueba
 (UNPARSEBNF '(FNC 3 ((1 -2 3) (-1 2))))
 (UNPARSEBNF '(FNC 2 ((1 2) (-1 -2) (1 -2))))
