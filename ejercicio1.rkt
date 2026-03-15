@@ -1,5 +1,7 @@
 #lang eopl
 
+(provide (all-defined-out))
+
 ;; Integrantes:
 ;; Juan Esteban Arias Saldaña (2417915)
 ;; Valeria Zamudio Arevalo (2415210)
@@ -104,14 +106,49 @@
                                (if (and (equal? (car FNC) 'FNC) (number? (cadr FNC)) (is-clausulaAND? (caddr FNC))) #t #f)
                                ))
 
+
+
 ;; 1.2
+
+;; clausulaORR :
+;; Proposito:
+;; Define el tipo de dato clausulaORR que representa una clausula
+;; disyuntiva (OR) como una lista de numeros enteros.
+;; clausulaORR-s    : recibe un unico numero n (number?) y representa
+;;                    una clausula con un solo elemento.
+;; clausulaORR-rec  : recibe un numero num (number?) y una clausula
+;;                    rec (clausulaORR?) y representa una clausula con
+;;                    multiples numeros.
+;; <clausulaORR> := (clausulaORR-s <number>)
+;;               := (clausulaORR-rec <number> <clausulaORR>)
+
 (define-datatype clausulaORR clausulaORR?
   (clausulaORR-s
    (n number?))
   (clausulaORR-rec
    (num number?)
    (rec clausulaORR?))
- )
+)
+
+;; Pruebas clausulaORR
+(clausulaORR-s 1)
+(clausulaORR-rec 1 (clausulaORR-s 2))
+(clausulaORR-rec -1 (clausulaORR-rec 2 (clausulaORR-s -3)))
+
+
+
+
+;; clausulasANDD :
+;; Proposito:
+;; Define el tipo de dato clausulasANDD que representa una conjuncion
+;; (AND) de clausulas disyuntivas (clausulaORR).
+;; clausulaANDD-s   : recibe una unica clausula cl (clausulaORR?) y
+;;                    representa una FNC con una sola clausula.
+;; clausulasANDD-rec: recibe una clausula s (clausulaORR?) y una
+;;                    conjuncion rec (clausulasANDD?) y representa
+;;                    una FNC con multiples clausulas.
+;; <clausulasANDD> := (clausulaANDD-s <clausulaORR>)
+;;                := (clausulasANDD-rec <clausulaORR> <clausulasANDD>)
 
 (define-datatype clausulasANDD clausulasANDD?
   (clausulaANDD-s
@@ -119,7 +156,30 @@
   (clausulasANDD-rec
    (s clausulaORR?)
    (rec clausulasANDD?))
- )
+)
+
+
+
+;; Pruebas clausulasANDD
+(clausulaANDD-s (clausulaORR-s 1))
+(clausulasANDD-rec (clausulaORR-rec 1 (clausulaORR-s 2))
+                   (clausulaANDD-s (clausulaORR-s -1)))
+(clausulasANDD-rec (clausulaORR-rec -1 (clausulaORR-s 2))
+                   (clausulasANDD-rec (clausulaORR-rec 1 (clausulaORR-s -2))
+                                      (clausulaANDD-s (clausulaORR-s 3))))
+
+;; fnc :
+;; Proposito:
+;; Define el tipo de dato fnc que representa una Formula en
+;; Forma Normal Conjuntiva (FNC) completa.
+;; FNCC: recibe un numero n (number?) que indica la cantidad de
+;;       variables y una conjuncion de clausulas clausulasANDD
+;;       (clausulasANDD?) que representa la formula completa.
+;; <fnc>          := (FNCC <number> <clausulasANDD>)
+;; <clausulasANDD> := (clausulaANDD-s <clausulaORR>)
+;;                := (clausulasANDD-rec <clausulaORR> <clausulasANDD>)
+;; <clausulaORR>  := (clausulaORR-s <number>)
+;;                := (clausulaORR-rec <number> <clausulaORR>)
 
 (define-datatype fnc fnc?
   (FNCC
@@ -164,33 +224,3 @@
    (clausulaANDD-s
     (clausulaORR-s 3)))))
 
-
-
-;;2.1
-
-(define unir (lambda (L1 L2)
-  (if (null? L1) L2
-      (cons (car L1) (unir (cdr L1) L2)))))
-
-
-(define UNPARSEBNF-OR (lambda (exp)
-                                   (cond
-                                     [(null? (cdr exp)) (list (car exp))]
-                                     [else (unir (list (car exp) 'or) (UNPARSEBNF-OR (cdr exp)))]
-                                     )))
-
-(define UNPARSEBNF-AND (lambda (exp)
-                                    (cond
-                                      [(null? (cdr exp)) (list (UNPARSEBNF-OR (car exp)))]
-                                      [else (unir (list (UNPARSEBNF-OR (car exp)) 'and) (UNPARSEBNF-AND (cdr exp)))]
-                                      )))
-
-
-(define UNPARSEBNF (lambda (exp)
-                                (if (and (equal? (car exp) 'FNC) (number? (cadr exp)) (list? (caddr exp)))
-                                    (list 'FNC (cadr exp) (UNPARSEBNF-AND (caddr exp)))
-                                (eopl:error 'exp "no es una FNC valida"))))
-;; Casos de prueba
-(UNPARSEBNF '(FNC 3 ((1 -2 3) (-1 2))))
-(UNPARSEBNF '(FNC 2 ((1 2) (-1 -2) (1 -2))))
-(UNPARSEBNF '(FNC 4 ((1 2 3) (-1 -2) (2 -3 4) (-4 1))))
