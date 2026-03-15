@@ -4,7 +4,7 @@
 
 
 ;;Gramática:
-;;  <FNC> := FNC <númeroDeRacket> (<clausulas>)
+;;  <FNC> := FNC <númeroDeRacket> (<clausulasAND>)
 ;;
 ;;  <clausulaOR> := <var> or <clausulaOR>
 ;;             := <var>
@@ -17,7 +17,7 @@
 
 ;;var
 (define var (lambda (sym) 
-                              sym
+                              (if (number? sym) sym '())
                               ))
 
 (define is-var? (lambda (sym) (if
@@ -41,8 +41,18 @@
                      )
                    ))
 
-(define is-clausulaOR? (lambda (clausulaOR)
-                       (if (is-var? (car clausulaOR)) #t #f)
+(define is-clausulaOR? (lambda (clausulaOR) (letrec
+                                                (
+                                                 [recorrerOR (lambda (clausulaOR anteriorEsNumero)
+                                                               (cond
+                                                                 [(null? clausulaOR) (if (equal? anteriorEsNumero #t) #t #f)]
+                                                                 [(equal? anteriorEsNumero #f) (if (not (is-var? (car clausulaOR))) #f (recorrerOR (cdr clausulaOR) #t)) ]
+                                                                 [else (if (equal? (car clausulaOR) 'or) (recorrerOR (cdr clausulaOR) #f) #f)]
+                                                                 )
+                                                               )
+                                                               ])
+                                                 (if (equal? (list? clausulaOR) #f) #f (recorrerOR clausulaOR #f))
+                                                )
                        ))
 
 (define fnc->clausulaOR (lambda (FNC) (
@@ -59,9 +69,19 @@
                                                [(null? (cdr listOfClausulas)) (list (clausulaOR (car listOfClausulas)))]
                                                [else (cons (clausulaOR (car listOfClausulas)) (cons 'and (clausulaAND (cdr listOfClausulas))))]
                                                )))
-(define is-clausulaAND? (lambda (clausulaAND)
-                       (and (list? clausulaAND) (or (list? (car clausulaAND)) (number? (car clausulaAND)))))
-                       )
+(define is-clausulaAND? (lambda (clausulaAND) (letrec (
+                                                       [recorrerAND (lambda (clausulaAND anteriorEsLista)
+                                                               (cond
+                                                                 [(null? clausulaAND) (if (equal? anteriorEsLista #t) #t #f)]
+                                                                 [(equal? anteriorEsLista #f) (if (not (is-clausulaOR? (car clausulaAND))) #f (recorrerAND (cdr clausulaAND) #t)) ]
+                                                                 [else (if (equal? (car clausulaAND) 'and) (recorrerAND (cdr clausulaAND) #f) #f)]
+                                                                 )
+                                                               )
+                                                               ])
+                                                (if (equal? (list? clausulaAND) #f) #f (recorrerAND clausulaAND #f))
+                                                )))
+                       
+
 
 (define fnc->clausulaAND (lambda (FNC)
                                           (cond
@@ -78,7 +98,7 @@
                          ))
 
 (define is-FNC? (lambda (FNC) 
-                               (if (equal? (car FNC) 'FNC) #t #f)
+                               (if (and (equal? (car FNC) 'FNC) (number? (cadr FNC)) (is-clausulaAND? (caddr FNC))) #t #f)
                                ))
 
 ;; 1.2
@@ -108,4 +128,58 @@
 
 ;;2.1
 
+(define PARSEBNF (lambda (lista) (letrec (
 
+
+                                      (parseOR (lambda (lista)
+                                                  (cond
+                                                    [(null? lista) '()]
+                                                    [(number? (car lista)) (cons (car lista) (parseOR (cdr lista)))]
+                                                    [else (parseOR (cdr lista))]
+                                                    )
+                                                  ))
+                                      
+                                      (parseAND (lambda (lista)
+                                                  (cond
+                                                    [(null? lista) '()]
+                                                    [(list? (car lista)) (cons (parseOR (car lista)) (parseAND (cdr lista)))]
+                                                    [else (parseAND (cdr lista))]
+                                                    )
+                                                  )))
+
+                                    
+                                 
+                                 (cond
+                                   [(equal? (car lista) 'FNC) (cons 'FNC (PARSEBNF (cdr lista)))]
+                                   [(number? (car lista)) (cons (car lista) (PARSEBNF (cdr lista)))]
+                                   [else (list (parseAND (car lista)))]
+                                   ))
+                                 ))
+
+
+;;3.1 Generar todas las combinaciones
+(define combinar (lambda (list)
+
+
+                   (if (null? list) '(()) 
+                   
+                   (letrec (
+
+                                     (crearCombinaciones (lambda (list)
+
+                                       (if (null? list) '() (cons (cons #f ( car list)) (cons (cons #t (car list)) (crearCombinaciones (cdr list)))))                    
+                                                           
+                                                           )
+                                                           )
+                                         
+                                    (resto (combinar (cdr list)))
+                                    )
+
+                    (crearCombinaciones resto))
+                                  
+                   
+                   
+                   )))
+
+
+                          
