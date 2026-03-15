@@ -22,7 +22,7 @@
 
 ;;var
 (define var (lambda (sym) 
-                              sym
+                              (if (number? sym) sym '())
                               ))
 
 (define is-var? (lambda (sym) (if
@@ -228,6 +228,60 @@
 ;;2.1
 
 (define PARSEBNF (lambda (lista) (letrec (
+
+
+                                      (parseOR (lambda (lista)
+                                                  (cond
+                                                    [(null? lista) '()]
+                                                    [(number? (car lista)) (cons (car lista) (parseOR (cdr lista)))]
+                                                    [else (parseOR (cdr lista))]
+                                                    )
+                                                  ))
+                                      
+                                      (parseAND (lambda (lista)
+                                                  (cond
+                                                    [(null? lista) '()]
+                                                    [(list? (car lista)) (cons (parseOR (car lista)) (parseAND (cdr lista)))]
+                                                    [else (parseAND (cdr lista))]
+                                                    )
+                                                  )))
+
+                                    
+                                 
+                                 (cond
+                                   [(equal? (car lista) 'FNC) (cons 'FNC (PARSEBNF (cdr lista)))]
+                                   [(number? (car lista)) (cons (car lista) (PARSEBNF (cdr lista)))]
+                                   [else (list (parseAND (car lista)))]
+                                   ))
+                                 ))
+
+
+;;3.1 Generar todas las combinaciones
+(define combinar (lambda (list)
+
+
+                   (if (null? list) '(()) 
+                   
+                   (letrec (
+
+                                     (crearCombinaciones (lambda (list)
+
+                                       (if (null? list) '() (cons (cons #f ( car list)) (cons (cons #t (car list)) (crearCombinaciones (cdr list)))))                    
+                                                           
+                                                           )
+                                                           )
+                                         
+                                    (resto (combinar (cdr list)))
+                                    )
+
+                    (crearCombinaciones resto))
+                                  
+                   
+                   
+                   )))
+
+
+                          
                                           (parseOR (lambda (lista)
                                                      (cond
                                                        [(null? lista) '()]
