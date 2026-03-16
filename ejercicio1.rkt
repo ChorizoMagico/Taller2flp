@@ -14,6 +14,8 @@
 ;; completamente cada solución implementada.
 
 ;;1.1
+
+
 ;;Gramática:
 ;;  <FNC> := FNC <número-de-racket> (<clausulasAND>)
 ;;
@@ -261,7 +263,7 @@
 ;; > (1 2 1 2)
 (tomarNúmerosFNC '(FNC 3 ((1 or -2 or 3) and (-1 or 2))))
 ;; > (1 2 3 1 2)
-(tomarNúmerosFNC '(FNC 1 ((1)) and (-1)))
+(tomarNúmerosFNC '(FNC 1 ((1) and (-1))))
 ;; > (1 1)
 
 
@@ -368,11 +370,11 @@
                          )))
 ;; Pruebas FNC
 (FNC 2 '((1 2)(-1 -2)))
-;; > (FNC 2 (1 or 2) and (-1 or -2))
+;; > (FNC 2 ((1 or 2) and (-1 or -2)))
 (FNC 3 '((1 -2 3)(-1 2)))
-;; > (FNC 3 (1 or -2 or 3) and (-1 or 2))
+;; > (FNC 3 ((1 or -2 or 3) and (-1 or 2)))
 (FNC 1 '((1)(-1)))
-;; > (FNC 1 (1) and (-1))
+;; > (FNC 1 ((1) and (-1)))
 
 ;; 1.2
 
