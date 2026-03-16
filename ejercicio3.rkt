@@ -17,6 +17,18 @@
 ;; Devuelve una lista de listas de booleanos.
 ;; <lista> := ()
 ;;          := (<valor-de-scheme> <lista>)
+
+;; crearCombinaciones :
+;; Proposito:
+;; L -> L': Recibe una lista list de combinaciones parciales de booleanos
+;; (cada elemento es una lista de booleanos).
+;; Por cada combinacion existente genera dos nuevas: una anteponiendo #f
+;; y otra anteponiendo #t.
+;; Devuelve la lista con todas las combinaciones extendidas.
+;; <list> := ()
+;;         := (<combinacion-parcial> <list>)
+;; <combinacion-parcial> := (<booleano> ...)
+
 (define combinar (lambda (list)
 
 
@@ -42,6 +54,14 @@
 ;; > ((#f) (#t))
 (combinar '())
 ;; > (())
+
+;; Pruebas crearCombinaciones
+;;(crearCombinaciones '((#f) (#t)))
+;; > ((#f #f) (#t #f) (#f #t) (#t #t))
+;;(crearCombinaciones '(()))
+;; > ((#f) (#t))
+;;(crearCombinaciones '())
+;; > ()
 
 
 

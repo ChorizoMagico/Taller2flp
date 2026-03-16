@@ -15,6 +15,31 @@
 ;; instancia SAT (con simbolos 'or y 'and explicitos) y construye el arbol
 ;; de sintaxis abstracta basado en listas, eliminando los simbolos 'or y 'and.
 ;; <lista> := (FNC <número> ((<clausulaOR> and)* <clausulaOR>))
+
+;; parseOR :
+;; Proposito:
+;; L -> L': Recibe una clausula disyuntiva lista con numeros y simbolos 'or.
+;; Devuelve una lista solo con los numeros, eliminando los simbolos 'or.
+;; <lista> := ()
+;;          := (<número-de-racket> <lista>)
+;;          := (or <lista>)
+
+;; parseAND :
+;; Proposito:
+;; L -> L': Recibe una lista de clausulas lista con listas y simbolos 'and.
+;; Devuelve una lista de clausulas procesadas por parseOR, eliminando los
+;; simbolos 'and.
+;; <lista> := ()
+;;          := (<clausulaOR> <lista>)
+;;          := (and <lista>)
+
+;; parseInterno :
+;; Proposito:
+;; L -> L': Recibe una FNC lista en representacion concreta.
+;; Recorre la estructura conservando el encabezado 'FNC y el numero
+;; de variables, delegando el procesamiento de clausulas a parseAND.
+;; <lista> := (FNC <número> (<clausulaAND>))
+
 (define PARSEBNF (lambda (lista) (letrec (
 
 
@@ -53,7 +78,31 @@
 (PARSEBNF '(FNC 3 ((1 or 2 or 3) and (-1 or 2) and (1 or -3))))
 ;; > (FNC 3 ((1 2 3) (-1 2) (1 -3)))
 (PARSEBNF '(FNC 1 ((1))))
-;; > (FNC 1 ((1)))    
+;; > (FNC 1 ((1)))
+
+;; Pruebas parseOR
+;;(parseOR '(1 or -2 or 3))
+;; > (1 -2 3)
+;;(parseOR '(1))
+;; > (1)
+;;(parseOR '())
+;; > ()
+
+;; Pruebas parseAND
+;;(parseAND '((1 or -2) and (-1 or 2)))
+;; > ((1 -2) (-1 2))
+;;(parseAND '((1)))
+;; > ((1))
+;;(parseAND '((1 or 2) and (3 or -1) and (-2)))
+;; > ((1 2) (3 -1) (-2))
+
+;; Pruebas parseInterno
+;;(parseInterno '(FNC 2 ((1 or -2) and (-1 or 2))))
+;; > (FNC 2 ((1 -2) (-1 2)))
+;;(parseInterno '(FNC 1 ((1))))
+;; > (FNC 1 ((1)))
+;;(parseInterno '(FNC 3 ((1 or 2) and (-1) and (3))))
+;; > (FNC 3 ((1 2) (-1) (3)))
                        
 
 

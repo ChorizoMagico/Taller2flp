@@ -118,6 +118,14 @@
 ;; <clausulaOR> := (<número-de-racket>)
 ;;              := (<número-de-racket> or <clausulaOR>)
 
+;; recorrerOR :
+;; Propósito:
+;; L x B -> B: Recibe una clausulaOR y un booleano anteriorEsNumero
+;; que indica si el elemento anterior fue un número.
+;; Devuelve #t si la clausulaOR es válida, #f en caso contrario.
+;; <clausulaOR>       := lista de símbolos y números
+;; <anteriorEsNumero> := <boolean>
+
 (define is-clausulaOR? (lambda (clausulaOR) (letrec
                                                 (
                                                  [recorrerOR (lambda (clausulaOR anteriorEsNumero)
@@ -138,6 +146,14 @@
 ;; > #t
 (is-clausulaOR? '(1 or))
 ;; > #f
+
+;; Pruebas recorrerOR
+;;(recorrerOR '(1 or 2) #f)
+;; > #t
+;;(recorrerOR '(or 2) #f)
+;; > #f
+;;(recorrerOR '() #t)
+;; > #t
 
 ;; fnc->clausulaOR :
 ;; Proposito:
@@ -166,6 +182,14 @@
 ;; <listOfClausulas> := ()
 ;;                   := (<clausulaOR> <listOfClausulas>)
 
+;; recorrerAND :
+;; Propósito:
+;; L x B -> B: Recibe una clausulaAND y un booleano anteriorEsLista
+;; que indica si el elemento anterior fue una clausulaOR válida.
+;; Devuelve #t si la clausulaAND es válida, #f en caso contrario.
+;; <clausulaAND>    := lista de clausulasOR intercaladas con 'and
+;; <anteriorEsLista> := <boolean>
+
 (define clausulaAND (lambda (listOfClausulas) 
                                                (cond
                                                [(null? listOfClausulas) '()]
@@ -179,6 +203,14 @@
 ;; > ((1 or -2 or 3))
 (clausulaAND '((1)(2)(-1)))
 ;; > ((1) and (2) and (-1))
+
+;; Pruebas recorrerAND
+;;(recorrerAND '((1 or 2) and (3)) #f)
+;; > #t
+;;(recorrerAND '(and (3)) #f)
+;; > #f
+;;(recorrerAND '() #t)
+;; > #t
 
 ;; is-clausulaAND? :
 ;; Proposito:
@@ -232,6 +264,32 @@
 ;; en sus clausulas, convirtiendo los negativos a su valor absoluto.
 ;; Devuelve una lista plana con todos los literales en valor absoluto.
 ;; <FNC> := lista definida segun la gramatica al inicio del archivo
+
+;; valorAbsoluto :
+;; Propósito:
+;; N -> N: Recibe un número entero número.
+;; Devuelve su valor absoluto.
+;; <número> := <número-de-racket>
+
+;; unir :
+;; Propósito:
+;; L x L -> L: Recibe dos listas L1 y L2.
+;; Devuelve la concatenación de L1 con L2.
+;; <L1> := ()
+;;       := (<valor-de-scheme> <L1>)
+;; <L2> := ()
+;;       := (<valor-de-scheme> <L2>)
+
+;; tomarNúmeros :
+;; Propósito:
+;; L -> L': Recibe una lista anidada lista que representa las clausulas
+;; de una FNC. Extrae todos los números en valor absoluto y los devuelve
+;; en una lista plana.
+;; <lista> := ()
+;;          := (<número-de-racket> <lista>)
+;;          := (<lista> <lista>)
+;;          := (<símbolo> <lista>)
+
 (define tomarNúmerosFNC (lambda (FNC) (letrec (
 
                                                [valorAbsoluto (lambda (número)
@@ -266,6 +324,29 @@
 (tomarNúmerosFNC '(FNC 1 ((1) and (-1))))
 ;; > (1 1)
 
+;; Pruebas valorAbsoluto
+;;(valorAbsoluto -3)
+;; > 3
+;;(valorAbsoluto 5)
+;; > 5
+;;(valorAbsoluto 0)
+;; > 0
+
+;; Pruebas unir
+;;(unir '(1 2) '(3 4))
+;; > (1 2 3 4)
+;;(unir '() '(1 2))
+;; > (1 2)
+;;(unir '(1) '())
+;; > (1)
+
+;; Pruebas tomarNúmeros
+;;(tomarNúmeros '((1 or -2) and (3)))
+;; > (1 2 3)
+;;(tomarNúmeros '((1)))
+;; > (1)
+;;(tomarNúmeros '())
+;; > ()
 
 ;; quitarRepetidos :
 ;; Proposito:
@@ -273,6 +354,15 @@
 ;; Devuelve una lista con los elementos unicos de la lista original.
 ;; <lista> := ()
 ;;          := (<valor-de-scheme> <lista>)
+
+;; recorrer :
+;; Propósito:
+;; V x L -> B: Recibe un valor a y una lista lista.
+;; Devuelve #t si a NO aparece en lista, #f si aparece al menos una vez.
+;; <a>     := <valor-de-scheme>
+;; <lista> := ()
+;;          := (<valor-de-scheme> <lista>)
+
 (define quitarRepetidos (lambda (lista) 
                                          (letrec (
                                                   [recorrer (lambda (a lista)
@@ -297,6 +387,14 @@
 (quitarRepetidos '())
 ;; > ()
 
+;; Pruebas recorrer
+;;(recorrer 1 '(2 3 4))
+;; > #t
+;;(recorrer 1 '(1 2 3))
+;; > #f
+;;(recorrer 5 '())
+;; > #t
+
 ;; fncTieneBuenN :
 ;; Proposito:
 ;; L -> B: Recibe una FNC (lista) y verifica que el numero de variables
@@ -304,6 +402,34 @@
 ;; y que estas sean consecutivas desde 1 hasta n.
 ;; Devuelve #t si el n es correcto, #f en caso contrario.
 ;; <FNC> := lista definida segun la gramatica al inicio del archivo
+
+;; contador :
+;; Propósito:
+;; L x N -> N: Recibe una lista lista y un acumulador numérico acumulador.
+;; Devuelve la cantidad de elementos en lista.
+;; <lista>       := ()
+;;               := (<valor-de-scheme> <lista>)
+;; <acumulador>  := <número-de-racket>
+
+;; contar :
+;; Propósito:
+;; L x L x N x N -> B: Recibe la lista original listaOriginal, la lista
+;; de iteración lista, un acumulador acumulador que representa el número
+;; esperado actual, y el total total de variables.
+;; Verifica que los números 1 hasta total aparezcan todos en listaOriginal.
+;; Devuelve #t si están todos presentes y consecutivos desde 1, #f si no.
+;; <listaOriginal> := lista de números enteros positivos
+;; <lista>         := lista de números enteros positivos (copia de trabajo)
+;; <acumulador>    := <número-de-racket>
+;; <total>         := <número-de-racket>
+
+;; valorAbsoluto :
+;; Propósito:
+;; N -> N: Recibe un número entero número.
+;; Devuelve su valor absoluto.
+;; <número> := <número-de-racket>
+
+
 (define fncTieneBuenN (lambda (FNC)
                         (letrec
                             (
@@ -336,6 +462,30 @@
 ;; > #f
 (fncTieneBuenN '(FNC 2 ((1 or 3) and (2))))
 ;; > #f
+
+;; Pruebas contador
+;;(contador '(1 2 3) 0)
+;; > 3
+;;(contador '() 0)
+;; > 0
+;;(contador '(1) 0)
+;; > 1
+
+;; Pruebas contar
+;;(contar '(1 2 3) '(1 2 3) 1 3)
+;; > #t
+;;(contar '(1 3) '(1 3) 1 2)
+;; > #f
+;;(contar '(1) '(1) 1 1)
+;; > #t
+
+;; Pruebas valorAbsoluto
+;;(valorAbsoluto -3)
+;; > 3
+;;(valorAbsoluto 5)
+;; > 5
+;;(valorAbsoluto 0)
+;; > 0
 
 ;; is-FNC? :
 ;; Proposito:
