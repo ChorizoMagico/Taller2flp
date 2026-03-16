@@ -4,6 +4,11 @@
 ;; Juan Esteban Arias Saldaña (2417915)
 ;; Valeria Zamudio Arevalo (2415210)
 
+;; Declaración de uso de IA:
+;; Se utilizó IA para: entender los conceptos del taller (árbol abstracto, concreto, etc), organizar mejor la documentación y los casos de prueba,
+;; entender errores del compilador
+;; Se declara que todos los integrantes comprenden y pueden explicar
+;; completamente cada solución implementada.
 ;;1.1
 
 
@@ -71,11 +76,11 @@
                                        )))
 
 ;; Pruebas fnc->var
-(fnc->var '(FNC 3 (1 or -2) and (3)) 1)
+(fnc->var '(FNC 3 ((1 or -2) and (3))) 1)
 ;; > #t
-(fnc->var '(FNC 3 (1 or -2) and (3)) -2)
+(fnc->var '(FNC 3 ((1 or -2) and (3))) -2)
 ;; > #t
-(fnc->var '(FNC 3 (1 or -2) and (3)) 5)
+(fnc->var '(FNC 3 ((1 or -2) and (3))) 5)
 ;; > #f
 
 ;; clausulaOR :
@@ -250,11 +255,11 @@
                                    
                                     )
 ;; Pruebas tomarNúmerosFNC
-(tomarNúmerosFNC '(FNC 2 (1 or -2) and (-1 or 2)))
+(tomarNúmerosFNC '(FNC 2 ((1 or -2) and (-1 or 2))))
 ;; > (1 2 1 2)
-(tomarNúmerosFNC '(FNC 3 (1 or -2 or 3) and (-1 or 2)))
+(tomarNúmerosFNC '(FNC 3 ((1 or -2 or 3) and (-1 or 2))))
 ;; > (1 2 3 1 2)
-(tomarNúmerosFNC '(FNC 1 (1) and (-1)))
+(tomarNúmerosFNC '(FNC 1 ((1)) and (-1)))
 ;; > (1 1)
 
 
@@ -321,11 +326,11 @@
 
                         )))
 ;; Pruebas fncTieneBuenN
-(fncTieneBuenN '(FNC 2 (1 or 2) and (-1 or -2)))
+(fncTieneBuenN '(FNC 2 ((1 or 2) and (-1 or -2))))
 ;; > #t
-(fncTieneBuenN '(FNC 3 (1 or 3) and (2)))
+(fncTieneBuenN '(FNC 3 ((1 or 3) and (2))))
 ;; > #f
-(fncTieneBuenN '(FNC 2 (1 or 3) and (2)))
+(fncTieneBuenN '(FNC 2 ((1 or 3) and (2))))
 ;; > #f
 
 ;; is-FNC? :
@@ -340,11 +345,11 @@
                                ))
 
 ;; Pruebas is-FNC?
-(is-FNC? '(FNC 2 (1 or 2) and (-1 or -2)))
+(is-FNC? '(FNC 2 ((1 or 2) and (-1 or -2))))
 ;; > #t
-(is-FNC? '(FNC 1 (1) and (-1)))
+(is-FNC? '(FNC 1 ((1) and (-1))))
 ;; > #t
-(is-FNC? '(2 (1 or 2)))
+(is-FNC? '(2 ((1 or 2))))
 ;; > #f
 
 ;; FNC :
@@ -509,16 +514,20 @@
                                                     [(list? (car lista)) (cons (parseOR (car lista)) (parseAND (cdr lista)))]
                                                     [else (parseAND (cdr lista))]
                                                     )
-                                                  )))
+                                                  ))
+                                      [parseInterno (lambda (lista)
+                                                      (cond
+                                   [(equal? (car lista) 'FNC) (cons 'FNC (parseInterno (cdr lista)))]
+                                   [(number? (car lista)) (cons (car lista) (parseInterno (cdr lista)))]
+                                   [else (list (parseAND (car lista)))]
+                                   ))]
+                                                      )
+                                      
 
                                     
-                                 
-                                 (cond
-                                   [(equal? (car lista) 'FNC) (cons 'FNC (PARSEBNF (cdr lista)))]
-                                   [(number? (car lista)) (cons (car lista) (PARSEBNF (cdr lista)))]
-                                   [else (list (parseAND (car lista)))]
-                                   ))
-                                 ))
+                                 (if (not (is-FNC? lista))(eopl:error 'PARSEBNF "no es una FNC valida") (parseInterno lista)
+                                 )
+                                 )))
 
 ;; Pruebas PARSEBNF
 (PARSEBNF '(FNC 2 ((1 or -2) and (-1 or 2))))

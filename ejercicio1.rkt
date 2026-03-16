@@ -7,9 +7,13 @@
 ;; Juan Esteban Arias Saldaña (2417915)
 ;; Valeria Zamudio Arevalo (2415210)
 
+;; Declaración de uso de IA:
+;; Se utilizó IA para: entender los conceptos del taller (árbol abstracto, concreto, etc), organizar mejor la documentación y los casos de prueba,
+;; entender errores del compilador
+;; Se declara que todos los integrantes comprenden y pueden explicar
+;; completamente cada solución implementada.
+
 ;;1.1
-
-
 ;;Gramática:
 ;;  <FNC> := FNC <número-de-racket> (<clausulasAND>)
 ;;
@@ -74,11 +78,11 @@
                                        )))
 
 ;; Pruebas fnc->var
-(fnc->var '(FNC 3 (1 or -2) and (3)) 1)
+(fnc->var '(FNC 3 ((1 or -2) and (3))) 1)
 ;; > #t
-(fnc->var '(FNC 3 (1 or -2) and (3)) -2)
+(fnc->var '(FNC 3 ((1 or -2) and (3))) -2)
 ;; > #t
-(fnc->var '(FNC 3 (1 or -2) and (3)) 5)
+(fnc->var '(FNC 3 ((1 or -2) and (3))) 5)
 ;; > #f
 
 ;; clausulaOR :
@@ -253,11 +257,11 @@
                                    
                                     )
 ;; Pruebas tomarNúmerosFNC
-(tomarNúmerosFNC '(FNC 2 (1 or -2) and (-1 or 2)))
+(tomarNúmerosFNC '(FNC 2 ((1 or -2) and (-1 or 2))))
 ;; > (1 2 1 2)
-(tomarNúmerosFNC '(FNC 3 (1 or -2 or 3) and (-1 or 2)))
+(tomarNúmerosFNC '(FNC 3 ((1 or -2 or 3) and (-1 or 2))))
 ;; > (1 2 3 1 2)
-(tomarNúmerosFNC '(FNC 1 (1) and (-1)))
+(tomarNúmerosFNC '(FNC 1 ((1)) and (-1)))
 ;; > (1 1)
 
 
@@ -324,11 +328,11 @@
 
                         )))
 ;; Pruebas fncTieneBuenN
-(fncTieneBuenN '(FNC 2 (1 or 2) and (-1 or -2)))
+(fncTieneBuenN '(FNC 2 ((1 or 2) and (-1 or -2))))
 ;; > #t
-(fncTieneBuenN '(FNC 3 (1 or 3) and (2)))
+(fncTieneBuenN '(FNC 3 ((1 or 3) and (2))))
 ;; > #f
-(fncTieneBuenN '(FNC 2 (1 or 3) and (2)))
+(fncTieneBuenN '(FNC 2 ((1 or 3) and (2))))
 ;; > #f
 
 ;; is-FNC? :
@@ -343,11 +347,11 @@
                                ))
 
 ;; Pruebas is-FNC?
-(is-FNC? '(FNC 2 (1 or 2) and (-1 or -2)))
+(is-FNC? '(FNC 2 ((1 or 2) and (-1 or -2))))
 ;; > #t
-(is-FNC? '(FNC 1 (1) and (-1)))
+(is-FNC? '(FNC 1 ((1) and (-1))))
 ;; > #t
-(is-FNC? '(2 (1 or 2)))
+(is-FNC? '(2 ((1 or 2))))
 ;; > #f
 
 ;; FNC :
@@ -369,3 +373,121 @@
 ;; > (FNC 3 (1 or -2 or 3) and (-1 or 2))
 (FNC 1 '((1)(-1)))
 ;; > (FNC 1 (1) and (-1))
+
+;; 1.2
+
+;; clausulaORR :
+;; Proposito:
+;; Define el tipo de dato clausulaORR que representa una clausula
+;; disyuntiva (OR) como una lista de numeros enteros.
+;; clausulaORR-s    : recibe un unico numero n (number?) y representa
+;;                    una clausula con un solo elemento.
+;; clausulaORR-rec  : recibe un numero num (number?) y una clausula
+;;                    rec (clausulaORR?) y representa una clausula con
+;;                    multiples numeros.
+;; <clausulaORR> := (clausulaORR-s <number>)
+;;               := (clausulaORR-rec <number> <clausulaORR>)
+
+(define-datatype clausulaORR clausulaORR?
+  (clausulaORR-s
+   (n number?))
+  (clausulaORR-rec
+   (num number?)
+   (rec clausulaORR?))
+)
+
+;; Pruebas clausulaORR
+(clausulaORR-s 1)
+(clausulaORR-rec 1 (clausulaORR-s 2))
+(clausulaORR-rec -1 (clausulaORR-rec 2 (clausulaORR-s -3)))
+
+
+
+
+;; clausulasANDD :
+;; Proposito:
+;; Define el tipo de dato clausulasANDD que representa una conjuncion
+;; (AND) de clausulas disyuntivas (clausulaORR).
+;; clausulaANDD-s   : recibe una unica clausula cl (clausulaORR?) y
+;;                    representa una FNC con una sola clausula.
+;; clausulasANDD-rec: recibe una clausula s (clausulaORR?) y una
+;;                    conjuncion rec (clausulasANDD?) y representa
+;;                    una FNC con multiples clausulas.
+;; <clausulasANDD> := (clausulaANDD-s <clausulaORR>)
+;;                := (clausulasANDD-rec <clausulaORR> <clausulasANDD>)
+
+(define-datatype clausulasANDD clausulasANDD?
+  (clausulaANDD-s
+   (cl clausulaORR?))
+  (clausulasANDD-rec
+   (s clausulaORR?)
+   (rec clausulasANDD?))
+)
+
+
+
+;; Pruebas clausulasANDD
+(clausulaANDD-s (clausulaORR-s 1))
+(clausulasANDD-rec (clausulaORR-rec 1 (clausulaORR-s 2))
+                   (clausulaANDD-s (clausulaORR-s -1)))
+(clausulasANDD-rec (clausulaORR-rec -1 (clausulaORR-s 2))
+                   (clausulasANDD-rec (clausulaORR-rec 1 (clausulaORR-s -2))
+                                      (clausulaANDD-s (clausulaORR-s 3))))
+
+;; fnc :
+;; Proposito:
+;; Define el tipo de dato fnc que representa una Formula en
+;; Forma Normal Conjuntiva (FNC) completa.
+;; FNCC: recibe un numero n (number?) que indica la cantidad de
+;;       variables y una conjuncion de clausulas clausulasANDD
+;;       (clausulasANDD?) que representa la formula completa.
+;; <fnc>          := (FNCC <number> <clausulasANDD>)
+;; <clausulasANDD> := (clausulaANDD-s <clausulaORR>)
+;;                := (clausulasANDD-rec <clausulaORR> <clausulasANDD>)
+;; <clausulaORR>  := (clausulaORR-s <number>)
+;;                := (clausulaORR-rec <number> <clausulaORR>)
+
+(define-datatype fnc fnc?
+  (FNCC
+   (n number?)
+   (clausulasANDD clausulasANDD?))
+ )
+
+
+;; Ejemplos de la implementacion basada en datatypes donde se crean instancias SAT
+
+(FNCC
+ 3
+ (clausulasANDD-rec
+  (clausulaORR-rec 1
+                  (clausulaORR-rec -2
+                                  (clausulaORR-s 3)))
+  (clausulaANDD-s
+   (clausulaORR-rec -1
+                   (clausulaORR-s 2)))))
+
+
+(FNCC
+ 4
+ (clausulasANDD-rec
+  (clausulaORR-rec 1
+                  (clausulaORR-rec -2
+                                  (clausulaORR-rec 3
+                                                  (clausulaORR-s 4))))
+  (clausulaANDD-s
+   (clausulaORR-s 2))))
+
+
+(FNCC
+ 3
+ (clausulasANDD-rec
+  (clausulaORR-rec 1
+                  (clausulaORR-rec -2
+                                  (clausulaORR-s 3)))
+  (clausulasANDD-rec
+   (clausulaORR-rec -1
+                   (clausulaORR-s 2))
+   (clausulaANDD-s
+    (clausulaORR-s 3)))))
+
+

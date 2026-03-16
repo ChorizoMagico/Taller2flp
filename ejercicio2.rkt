@@ -9,19 +9,6 @@
 ;; Valeria Zamudio Arevalo (2415210)
 
 ;;2.1
-
-;;Gramática:
-;;  <FNC> := FNC <número-de-racket> (<clausulasAND>)
-;;
-;;  <clausulaOR> := <var> or <clausulaOR>
-;;               := <var>
-;;
-;;  <clausulasAND> := (<clausulaOR>) and <clausulasAND>
-;;                 := (<clausulaOR>) 
-;;
-;; <var> := <número-de-racket>
-
-
 ;; PARSEBNF :
 ;; Proposito:
 ;; L -> L': Recibe una lista lista con la representacion concreta de una
@@ -45,16 +32,20 @@
                                                     [(list? (car lista)) (cons (parseOR (car lista)) (parseAND (cdr lista)))]
                                                     [else (parseAND (cdr lista))]
                                                     )
-                                                  )))
+                                                  ))
+                                      [parseInterno (lambda (lista)
+                                                      (cond
+                                   [(equal? (car lista) 'FNC) (cons 'FNC (parseInterno (cdr lista)))]
+                                   [(number? (car lista)) (cons (car lista) (parseInterno (cdr lista)))]
+                                   [else (list (parseAND (car lista)))]
+                                   ))]
+                                                      )
+                                      
 
                                     
-                                 
-                                 (cond
-                                   [(equal? (car lista) 'FNC) (cons 'FNC (PARSEBNF (cdr lista)))]
-                                   [(number? (car lista)) (cons (car lista) (PARSEBNF (cdr lista)))]
-                                   [else (list (parseAND (car lista)))]
-                                   ))
-                                 ))
+                                 (if (not (is-FNC? lista))(eopl:error 'PARSEBNF "no es una FNC valida") (parseInterno lista)
+                                 )
+                                 )))
 
 ;; Pruebas PARSEBNF
 (PARSEBNF '(FNC 2 ((1 or -2) and (-1 or 2))))
