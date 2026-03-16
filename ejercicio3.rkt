@@ -236,8 +236,8 @@
 
 ;;Pruebas EVALUARSAT
 (EVALUARSAT '(FNC 4 ((1 or -3) and (2 or 4) and (-1 or -2 or 3) and (1 or 2 or -4))))
-
+;; > (satisfactible (#f #t #f #f))
 (EVALUARSAT '(FNC 3 ((1 or 2 or 3) and (-1 or 2) and (1 or -3))))
-
+;; > (satisfactible (#f #t #f))
 (EVALUARSAT '(FNC 2 ((1 or 2) and (-1) and (-2))))
-
+;; > (insatisfactible ())
