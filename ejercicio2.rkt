@@ -129,11 +129,9 @@
 ;; <exp> := (FNC <número> <lista-de-clausulas>)
 
 (define UNPARSEBNF (lambda (exp)
-                                (if (fncTieneBuenN exp)
-                                    (if (and (equal? (car exp) 'FNC) (number? (cadr exp)) (list? (caddr exp)))
-                                        (list 'FNC (cadr exp) (UNPARSEBNF-AND (caddr exp)))
-                                        (eopl:error 'UNPARSEBNF "no es una FNC valida"))
-                                (eopl:error 'UNPARSEBNF "el numero de variables no es valido"))))
+                                (if (and (equal? (car exp) 'FNC) (number? (cadr exp)) (list? (caddr exp)))
+                                    (list 'FNC (cadr exp) (UNPARSEBNF-AND (caddr exp)))
+                                (eopl:error 'UNPARSEBNF "no es una FNC valida"))))
   
 ;; Casos de prueba
 (UNPARSEBNF '(FNC 3 ((1 -2 3) (-1 2))))
