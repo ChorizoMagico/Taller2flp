@@ -56,9 +56,9 @@
                         (combinar (quitarRepetidos (tomarNúmerosFNC FNC)))
                         ))
 ;; Pruebas combinaciones
-(combinaciones '(FNC 2 (1 or -2) and (-1 or 2)))
+(combinaciones '(FNC 2 ((1 or -2) and (-1 or 2))))
 ;; > ((#f #f) (#f #t) (#t #f) (#t #t))
-(combinaciones '(FNC 1 (1) and (-1)))
+(combinaciones '(FNC 1 ((1) and (-1))))
 ;; > ((#f) (#t))
 (combinaciones '(FNC 3 (1 or 2 or 3)))
 ;; > ((#f #f #f) (#f #f #t) (#f #t #f) (#f #t #t) (#t #f #f) (#t #f #t) (#t #t #f) (#t #t #t))
