@@ -1,6 +1,5 @@
 #lang eopl
 
-
 (require "ejercicio1.rkt")
 (require "ejercicio2.rkt")
 
@@ -10,58 +9,18 @@
 
 ;; 3
 
-;; combinar :
-;; Proposito:
-;; L -> L': Recibe una lista de elementos y genera todas las combinaciones
-;; posibles de valores booleanos (#t y #f) para cada elemento.
-;; Devuelve una lista de listas de booleanos.
-;; <lista> := ()
-;;          := (<valor-de-scheme> <lista>)
-(define combinar (lambda (list)
+;;Gramática:
+;;  <FNC> := FNC <número-de-racket> (<clausulasAND>)
+;;
+;;  <clausulaOR> := <var> or <clausulaOR>
+;;               := <var>
+;;
+;;  <clausulasAND> := (<clausulaOR>) and <clausulasAND>
+;;                 := (<clausulaOR>) 
+;;
+;; <var> := <número-de-racket>
 
 
-                   (if (null? list) '(()) 
-                   
-                   (letrec (
-
-                                     (crearCombinaciones (lambda (list)
-
-                                       (if (null? list) '() (cons (cons #f ( car list)) (cons (cons #t (car list)) (crearCombinaciones (cdr list)))))                    
-                                                           
-                                                           )
-                                                           )
-                                         
-                                    (resto (combinar (cdr list)))
-                                    )
-
-                    (crearCombinaciones resto)))))
-;; Pruebas combinar
-(combinar '(1 2))
-;; > ((#f #f) (#f #t) (#t #f) (#t #t))
-(combinar '(1))
-;; > ((#f) (#t))
-(combinar '())
-;; > (())
-
-
-
-
-;; combinaciones :
-;; Proposito:
-;; L -> L': Recibe una FNC (lista) y genera todas las combinaciones
-;; posibles de valores booleanos para sus variables.
-;; Devuelve una lista de listas de booleanos.
-;; <FNC> := lista definida segun la gramatica al inicio del archivo
-(define combinaciones (lambda (FNC)
-                        (combinar (quitarRepetidos (tomarNúmerosFNC FNC)))
-                        ))
-;; Pruebas combinaciones
-(combinaciones '(FNC 2 (1 or -2) and (-1 or 2)))
-;; > ((#f #f) (#f #t) (#t #f) (#t #t))
-(combinaciones '(FNC 1 (1) and (-1)))
-;; > ((#f) (#t))
-(combinaciones '(FNC 3 (1 or 2 or 3)))
-;; > ((#f #f #f) (#f #f #t) (#f #t #f) (#f #t #t) (#t #f #f) (#t #f #t) (#t #t #f) (#t #t #t))
 
 ;; buscarClausula :
 ;; Proposito:
@@ -227,17 +186,17 @@
 ;; la FNC, o (insatisfactible ()) si no existe ninguna.
 ;; <FNC-input> := formula valida segun is-FNC? y PARSEBNF
 
-(define EVALUARSAT (lambda (FNC)
-                                (if (is-FNC? FNC)
-                                    (if (probarCombinaciones (car (cdr (cdr (PARSEBNF FNC)))) (combinaciones FNC))
-                                        (list 'satisfactible (probarCombinaciones (car (cdr (cdr (PARSEBNF FNC)))) (combinaciones FNC)))
-                                    (list 'insatisfactible '()))
-                                (eopl:error 'EVALUARSAT "no es una FNC valida"))))
+;;(define EVALUARSAT (lambda (FNC)
+                                ;;(if (is-FNC? FNC)
+                                    ;;(if (probarCombinaciones (cdr (cdr (PARSEBNF FNC))) (combinaciones FNC))
+                                        ;;(list 'satisfactible (probarCombinaciones (cdr (cdr (PARSEBNF FNC))) (combinaciones FNC)))
+                                    ;;(list 'insatisfactible '()))
+                                ;;(eopl:error 'EVALUARSAT "no es una FNC valida"))))
 
 ;;Pruebas EVALUARSAT
-(EVALUARSAT '(FNC 4 ((1 or -3) and (2 or 4) and (-1 or -2 or 3) and (1 or 2 or -4))))
+;;(EVALUARSAT '(FNC 4 ((1 or -3) and (2 or 4) and (-1 or -2 or 3) and (1 or 2 or -4))))
 
-(EVALUARSAT '(FNC 3 ((1 or 2 or 3) and (-1 or 2) and (1 or -3))))
+;;(EVALUARSAT '(FNC 3 ((1 or 2 or 3) and (-1 or 2) and (1 or -3))))
 
-(EVALUARSAT '(FNC 2 ((1 or 2) and (-1) and (-2))))
+;;(EVALUARSAT '(FNC 2 ((1 or 2) and (-1) and (-2))))
 
